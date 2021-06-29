@@ -11,7 +11,7 @@ import { modifyManifestFile } from 'office-addin-manifest';
 import projectsJsonData from './config/projectsJsonData';
 import { promisify } from "util";
 import * as usageData from "office-addin-usage-data";
-import * as uuid from 'uuid/v4';
+import { v4 as uuidv4 } from 'uuid';
 import * as yosay from 'yosay';
 const yo = require("yeoman-generator");
 
@@ -295,7 +295,7 @@ module.exports = class extends yo {
 
       this.project.projectInternalName = _.kebabCase(this.project.name);
       this.project.projectDisplayName = this.project.name;
-      this.project.projectId = uuid();
+      this.project.projectId = uuidv4();
       if (this.project.projectType === excelCustomFunctions) {
         this.project.host = 'Excel';
         this.project.hostInternalName = 'Excel';
@@ -304,6 +304,8 @@ module.exports = class extends yo {
         this.project.hostInternalName = this.project.host;
       }
       this.destinationRoot(this.project.folder);
+      process.chdir(this._destinationRoot);
+      this.env.cwd = this._destinationRoot;
 
       /* Check to to see if destination folder already exists. If so, we will exit and prompt the user to provide
       a different project name or output folder */
@@ -370,6 +372,9 @@ module.exports = class extends yo {
       this.log(`      3. Start the local web server and sideload the add-in:\n`);
       this.log(`         ${chalk.bold('npm start')}\n`);
       this.log(`      4. Open the project in VS Code:\n`);
+      this.log(`         ${chalk.bold('code .')}\n`);
+    } else if (this.project.isManifestOnly) {
+      this.log(`      2. Open the project in VS Code:\n`);
       this.log(`         ${chalk.bold('code .')}\n`);
     } else {
       if (this.project.host === "Excel" || this.project.host === "Word" || this.project.host === "Powerpoint") {
